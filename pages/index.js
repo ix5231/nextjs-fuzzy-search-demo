@@ -1,7 +1,3 @@
-// For fuzzy-finding
-// See also: https://fusejs.io/
-import Fuse from 'fuse.js'
-
 // For styling
 import Container from '@material-ui/core/Container'
 import TextField from '@material-ui/core/TextField'
@@ -21,34 +17,13 @@ import React, { useState, useEffect } from 'react'
 import { data } from '../src/data'
 // You may want to fetch this with asynchronous-manner in production
 
-// Options for fuse.js
-var options = {
-  // Sort by score (metrix of similarity)
-  shouldSort: true,
-  //threshold: 0.3,
-  threshold: 1,
-  location: 0,
-  distance: 10,
-  maxPatternLength: 10,
-  minMatchCharLength: 1,
-  keys: [
-    "studentId",
-    "name.firstName",
-    "name.lastName"
-  ]
-};
+import SearchWorker from '../src/search.worker'
 
 // Sleep function for DEMO
 function sleep(delay = 0) {
   return new Promise(resolve => {
     setTimeout(resolve, delay);
   });
-}
-
-const fuse = new Fuse(data, options)
-
-async function search(query) {
-  return await fuse.search(query)
 }
 
 // Our main component
@@ -61,6 +36,9 @@ const Home = () => {
   const [searchResult, setSearchResult] = useState([])
   // Do search
   //const searchResult = fuse.search(query)
+  const worker = new SearchWorker()
+
+  worker.addEventListener('message', e => setSearchResult(e.data))
 
   useEffect(() => {
     // Load data only once this component is mounted
@@ -82,7 +60,7 @@ const Home = () => {
       setSearchResult(data)
       return
     }
-    setSearchResult(search(query))
+    worker.postMessage(query)
   }, [query])
 
   return (

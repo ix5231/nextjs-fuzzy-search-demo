@@ -1,8 +1,10 @@
+// For fuzzy-finding
+// See also: https://fusejs.io/
 import Fuse from 'fuse.js'
 import { data } from '../src/data'
 
 // Options for fuse.js
-var options = {
+let options = {
   // Sort by score (metrix of similarity)
   shouldSort: true,
   //threshold: 0.3,
@@ -18,8 +20,8 @@ var options = {
   ]
 };
 
-const new Fuse()
+const fuse = new Fuse(data, options)
 
 self.addEventListener('message', function(e) {
-  self.postMessage(e.data);
-}, false);
+  //self.postMessage(fuse.search(e.data))
+})
