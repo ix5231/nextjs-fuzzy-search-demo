@@ -1,88 +1,111 @@
-import React from 'react'
-import Head from 'next/head'
-import Nav from '../components/nav'
+// For fuzzy-finding
+// See also: https://fusejs.io/
+import Fuse from 'fuse.js'
 
-const Home = () => (
-  <div>
-    <Head>
-      <title>Home</title>
-      <link rel="icon" href="/favicon.ico" />
-    </Head>
+// For styling
+import Container from '@material-ui/core/Container'
+import TextField from '@material-ui/core/TextField'
+import CircularProgress from '@material-ui/core/CircularProgress'
+import SearchResult from '../components/search_results'
 
-    <Nav />
+// Since we handle forms with 'controlled components' manner,
+// states are needed.
+// See also: https://reactjs.org/docs/forms.html#controlled-components
+// For the concept of State Hook, See:
+// https://reactjs.org/docs/hooks-intro.html
+// and
+// https://reactjs.org/docs/hooks-state.html
+import React, { useState, useEffect } from 'react'
 
-    <div className="hero">
-      <h1 className="title">Welcome to Next.js!</h1>
-      <p className="description">
-        To get started, edit <code>pages/index.js</code> and save to reload.
-      </p>
+// Test data
+import { data } from '../src/data'
+// You may want to fetch this with asynchronous-manner in production
 
-      <div className="row">
-        <a href="https://nextjs.org/docs" className="card">
-          <h3>Documentation &rarr;</h3>
-          <p>Learn more about Next.js in the documentation.</p>
-        </a>
-        <a href="https://nextjs.org/learn" className="card">
-          <h3>Next.js Learn &rarr;</h3>
-          <p>Learn about Next.js by following an interactive tutorial!</p>
-        </a>
-        <a
-          href="https://github.com/zeit/next.js/tree/master/examples"
-          className="card"
-        >
-          <h3>Examples &rarr;</h3>
-          <p>Find other example boilerplates on the Next.js GitHub.</p>
-        </a>
+// Options for fuse.js
+var options = {
+  // Sort by score (metrix of similarity)
+  shouldSort: true,
+  //threshold: 0.3,
+  threshold: 1,
+  location: 0,
+  distance: 10,
+  maxPatternLength: 10,
+  minMatchCharLength: 1,
+  keys: [
+    "studentId",
+    "name.firstName",
+    "name.lastName"
+  ]
+};
+
+// Sleep function for DEMO
+function sleep(delay = 0) {
+  return new Promise(resolve => {
+    setTimeout(resolve, delay);
+  });
+}
+
+const fuse = new Fuse(data, options)
+
+async function search(query) {
+  return await fuse.search(query)
+}
+
+// Our main component
+const Home = () => {
+  // A state keeps query words
+  const [query, setQuery] = useState('')
+  // Are data loaded?
+  const [loading, setLoading] = useState(true)
+  const [searching, setSearching] = useState(false)
+  const [searchResult, setSearchResult] = useState([])
+  // Do search
+  //const searchResult = fuse.search(query)
+
+  useEffect(() => {
+    // Load data only once this component is mounted
+    if (loading) {
+      // Sleep to demonstrate capability of handle async requests
+      (async () => {
+        console.log('Loading data...')
+        await sleep(3e3); // For demo purposes.
+        setSearchResult(data)
+        console.log('Data loaded!')
+
+        setLoading(false)
+      })();
+    }
+  }, /* Run this callback only once */ [])
+  
+  useEffect(() => {
+    if (!query) {
+      setSearchResult(data)
+      return
+    }
+    setSearchResult(search(query))
+  }, [query])
+
+  return (
+    <Container>
+      {/* Search form */}
+      <div>
+        <TextField placeholder='Search...' onChange={e => {
+          {/* Set value of form to query */ }
+          setQuery(e.target.value)
+        }} />
       </div>
-    </div>
-
-    <style jsx>{`
-      .hero {
-        width: 100%;
-        color: #333;
+      {/* spacer */}
+      <div style={{ 'height': '30px' }}></div>
+      {
+        loading ?
+          <CircularProgress /> :
+          <SearchResult candidates={
+            // Show every items when the query is empty
+            searchResult
+          } />
       }
-      .title {
-        margin: 0;
-        width: 100%;
-        padding-top: 80px;
-        line-height: 1.15;
-        font-size: 48px;
-      }
-      .title,
-      .description {
-        text-align: center;
-      }
-      .row {
-        max-width: 880px;
-        margin: 80px auto 40px;
-        display: flex;
-        flex-direction: row;
-        justify-content: space-around;
-      }
-      .card {
-        padding: 18px 18px 24px;
-        width: 220px;
-        text-align: left;
-        text-decoration: none;
-        color: #434343;
-        border: 1px solid #9b9b9b;
-      }
-      .card:hover {
-        border-color: #067df7;
-      }
-      .card h3 {
-        margin: 0;
-        color: #067df7;
-        font-size: 18px;
-      }
-      .card p {
-        margin: 0;
-        padding: 12px 0 0;
-        font-size: 13px;
-        color: #333;
-      }
-    `}</style>
-  </div>
-)
+    </Container>
+  )
+}
 
 export default Home
