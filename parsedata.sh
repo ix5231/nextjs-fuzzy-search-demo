@@ -15,7 +15,7 @@ cat $1 | while read line; do
     fname="'"${3//$'n'}"'"
     lname="'"$2"'"
     echo -n '    '
-    echo '{' id: $1, "'"name"'": '{' "'"firstname"'": $fname, "'"lastname"'": $lname '},' "'"studentId"'": $id '},'
+    echo '{' id: $1, "'"name"'": '{' "'"firstName"'": $fname, "'"lastName"'": $lname '},' "'"studentId"'": $id '},'
 done
 echo
 echo ']'
