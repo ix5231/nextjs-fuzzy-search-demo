@@ -47,20 +47,14 @@ function sleep(delay = 0) {
 
 const fuse = new Fuse(data, options)
 
-async function search(query) {
-  return await fuse.search(query)
-}
-
 // Our main component
 const Home = () => {
   // A state keeps query words
   const [query, setQuery] = useState('')
   // Are data loaded?
   const [loading, setLoading] = useState(true)
-  const [searching, setSearching] = useState(false)
-  const [searchResult, setSearchResult] = useState([])
   // Do search
-  //const searchResult = fuse.search(query)
+  const searchResult = fuse.search(query)
 
   useEffect(() => {
     // Load data only once this component is mounted
@@ -69,21 +63,12 @@ const Home = () => {
       (async () => {
         console.log('Loading data...')
         await sleep(3e3); // For demo purposes.
-        setSearchResult(data)
         console.log('Data loaded!')
 
         setLoading(false)
       })();
     }
   }, /* Run this callback only once */ [])
-  
-  useEffect(() => {
-    if (!query) {
-      setSearchResult(data)
-      return
-    }
-    setSearchResult(search(query))
-  }, [query])
 
   return (
     <Container>
@@ -101,7 +86,7 @@ const Home = () => {
           <CircularProgress /> :
           <SearchResult candidates={
             // Show every items when the query is empty
-            searchResult
+            query ? searchResult : data
           } />
       }
     </Container>
