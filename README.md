@@ -1,4 +1,4 @@
-# Fuzzy search demo
+# Fuzzy search demo (WIP multithread version)
 
 ## How to start
 
