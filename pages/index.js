@@ -54,7 +54,9 @@ const Home = () => {
   // Are data loaded?
   const [loading, setLoading] = useState(true)
   // Do search
-  const searchResult = fuse.search(query).slice(0, 15)
+  const searchResult = fuse.search(query)
+  // Showing large data causes frame dropping
+  const searchResultShown = (query ? searchResult : data).slice(0, 15)
 
   useEffect(() => {
     // Load data only once this component is mounted
@@ -86,7 +88,7 @@ const Home = () => {
           <CircularProgress /> :
           <SearchResult candidates={
             // Show every items when the query is empty
-            query ? searchResult : data
+            searchResultShown
           } />
       }
     </Container>
