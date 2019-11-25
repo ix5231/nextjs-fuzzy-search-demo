@@ -17,7 +17,7 @@ import React, { useState, useEffect } from 'react'
 import { data } from '../src/data'
 // You may want to fetch this with asynchronous-manner in production
 
-import SearchWorker from '../src/search.worker'
+import Worker from '../src/search.worker'
 
 // Sleep function for DEMO
 function sleep(delay = 0) {
@@ -36,7 +36,7 @@ const Home = () => {
   const [searchResult, setSearchResult] = useState([])
   // Do search
   //const searchResult = fuse.search(query)
-  const worker = new SearchWorker()
+  const worker = new Worker()
 
   worker.addEventListener('message', e => setSearchResult(e.data))
 
@@ -47,7 +47,7 @@ const Home = () => {
       (async () => {
         console.log('Loading data...')
         await sleep(3e3); // For demo purposes.
-        setSearchResult(data)
+        setSearchResult(data.slice(0, 3*5))
         console.log('Data loaded!')
 
         setLoading(false)
@@ -57,7 +57,7 @@ const Home = () => {
   
   useEffect(() => {
     if (!query) {
-      setSearchResult(data)
+      setSearchResult(data.slice(0, 3*5))
       return
     }
     worker.postMessage(query)
@@ -86,4 +86,13 @@ const Home = () => {
   )
 }
 
-export default Home
+//export default Home
+import NoSSR from 'react-no-ssr'
+
+export default () => (
+  <div>
+    <NoSSR>
+      <Home />
+    </NoSSR>
+  </div>
+)

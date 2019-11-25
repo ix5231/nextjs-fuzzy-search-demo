@@ -7,7 +7,7 @@ import { data } from '../src/data'
 let options = {
   // Sort by score (metrix of similarity)
   shouldSort: true,
-  threshold: 0.3,
+  //threshold: 0.3,
   threshold: 1,
   location: 0,
   distance: 10,
@@ -23,7 +23,5 @@ let options = {
 const fuse = new Fuse(data, options)
 
 self.addEventListener('message', function(e) {
-  const result = fuse.search(e.data)
-  // Return partly to avoid longer copy time
-  self.postMessage(result.slice(0, 3*5))
+  //self.postMessage(fuse.search(e.data))
 })
