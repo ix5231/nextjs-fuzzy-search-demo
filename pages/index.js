@@ -32,10 +32,8 @@ const Home = () => {
   const [query, setQuery] = useState('')
   // Are data loaded?
   const [loading, setLoading] = useState(true)
-  const [searching, setSearching] = useState(false)
   const [searchResult, setSearchResult] = useState([])
-  // Do search
-  //const searchResult = fuse.search(query)
+  // Make worker
   const worker = new Worker()
 
   worker.addEventListener('message', e => setSearchResult(e.data))
@@ -47,7 +45,7 @@ const Home = () => {
       (async () => {
         console.log('Loading data...')
         await sleep(3e3); // For demo purposes.
-        setSearchResult(data.slice(0, 3*5))
+        setSearchResult(data)
         console.log('Data loaded!')
 
         setLoading(false)
@@ -57,7 +55,7 @@ const Home = () => {
   
   useEffect(() => {
     if (!query) {
-      setSearchResult(data.slice(0, 3*5))
+      setSearchResult(data)
       return
     }
     worker.postMessage(query)
@@ -79,7 +77,7 @@ const Home = () => {
           <CircularProgress /> :
           <SearchResult candidates={
             // Show every items when the query is empty
-            searchResult
+            searchResult.slice(0, 3*5)
           } />
       }
     </Container>
@@ -91,6 +89,7 @@ import NoSSR from 'react-no-ssr'
 
 export default () => (
   <div>
+    {/* SSR don't like WebWorker */}
     <NoSSR>
       <Home />
     </NoSSR>
