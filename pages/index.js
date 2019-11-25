@@ -54,7 +54,7 @@ const Home = () => {
   // Are data loaded?
   const [loading, setLoading] = useState(true)
   // Do search
-  const searchResult = fuse.search(query)
+  const searchResult = fuse.search(query).slice(0, 15)
 
   useEffect(() => {
     // Load data only once this component is mounted
